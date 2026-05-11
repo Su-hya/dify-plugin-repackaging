@@ -52,13 +52,15 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Make plugin_repackaging.sh executable
-        run: chmod +x ./plugin_repackaging.sh
-
       - name: Run plugin repackaging script
-        # 添加 -e 确保脚本报错时能立即反馈
         run: |
-          set -e
+          # 1. 尝试修改脚本，让它在解压后、下载前停一下，或者直接用 sed 替换脚本里的内容
+          # 这里我们用一个“暴力”方法：在运行脚本前，修改脚本内部的逻辑（如果可能）
+          # 或者，如果 greenlet 是在当前目录的 requirements.txt，直接改：
+          if [ -f "requirements.txt" ]; then
+            sed -i 's/greenlet==3.4.0/greenlet>=3.2.5/g' requirements.txt
+          fi
+
           PIP_MIRROR_URL=https://pypi.org/simple \
           ./plugin_repackaging.sh \
           -p ${{ env.PIP_PLATFORM }} \
